@@ -9,11 +9,25 @@ internal static class WriterExtensions
     {
         if (result.Category == EnumSimpleTypeCategory.CustomEnum)
         {
-            w.WriteLine($"global::CommonBasicLibraries.CollectionClasses.BasicList<string> {GetInterfacePrefix(result)}GetSupportedList => [];");
+            w.WriteLine($"global::CommonBasicLibraries.CollectionClasses.BasicList<string> {GetInterfacePrefix(result)}GetSupportedList")
+                .WriteCodeBlock(w =>
+                {
+                    w.WriteLine("get")
+                    .WriteCodeBlock(w =>
+                    {
+                        w.WriteLine("global::CommonBasicLibraries.CollectionClasses.BasicList<string> output = [];")
+                        .WriteLine($"var start = global::{result.Namespace}.{result.ClassName}.CompleteList;")
+                        .WriteLine("foreach (var item in start)")
+                        .WriteCodeBlock(w =>
+                        {
+                            w.WriteLine("output.Add(item.Name);");
+                        })
+                        .WriteLine("return output;");
+                    });
+                });
         }
         else
         {
-            //this means i need the list.
             w.WriteLine($"global::CommonBasicLibraries.CollectionClasses.BasicList<string> {GetInterfacePrefix(result)}GetSupportedList => ")
                 .WriteListBlock(result.Values);
         }
